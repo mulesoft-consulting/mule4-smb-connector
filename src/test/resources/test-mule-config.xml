@@ -1,0 +1,19 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:samba="http://www.mulesoft.org/schema/mule/samba"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+          http://www.mulesoft.org/schema/mule/samba http://www.mulesoft.org/schema/mule/samba/current/mule-samba.xsd">
+
+    <samba:config name="config" configId="configId">
+        <samba:connection requiredParameter="aValue" />
+    </samba:config>
+
+    <flow name="sayHiFlow">
+        <samba:say-hi person="Mariano Gonzalez"/>
+    </flow>
+
+    <flow name="retrieveInfoFlow">
+        <samba:retrieve-info config-ref="config"/>
+    </flow>
+
+</mule>
