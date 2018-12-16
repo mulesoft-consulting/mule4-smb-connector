@@ -47,8 +47,8 @@ public class SmbjUtils {
         if (StringUtils.isBlank(smbConfig.getShare())) {
             throw new IllegalArgumentException("Share name can't be empty or null");
         }
-        if (shareName.startsWith("//")) {
-            shareName = shareName.replace("//", "").trim();
+        if (shareName.startsWith("/")) {
+            shareName = shareName.replace("/", "").trim();
         }
         Connection connect = smbClient.connect(smbConfig.getHost());
         AuthenticationContext authenticationContext = new AuthenticationContext(smbConfig.getUserName(), smbConfig.getPassword().toCharArray(), smbConfig.getDomain());
@@ -57,7 +57,7 @@ public class SmbjUtils {
         return share;
     }
 
-    public static File openFile(SambaConfiguration configuration, String fileName, DiskShare diskShare) {
+    public static File openFile(SambaConfiguration configuration, String fileName, DiskShare diskShare, boolean fileOverwrite) {
         //set access
         Set<AccessMask> accessMasks = new HashSet<>();
         accessMasks.add(AccessMask.MAXIMUM_ALLOWED);
@@ -77,6 +77,10 @@ public class SmbjUtils {
         }
 
         String dest = prepareFilePath(configuration, fileName);
+        if (diskShare.fileExists(dest) && fileOverwrite) {
+            logger.info("file name {} exists, overwriting existing file ", fileName);
+            diskShare.rm(dest);
+        }
         return diskShare.openFile(dest, accessMasks, fileAttributes, shareAccesses, SMB2CreateDisposition.FILE_OVERWRITE_IF, smb2CreateOptions);
     }
 

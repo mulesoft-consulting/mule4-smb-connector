@@ -8,6 +8,7 @@ import com.hierynomus.smbj.share.File;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
+import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,22 +32,25 @@ public class SaveFileOperation {
      */
     @MediaType(value = ANY, strict = false)
     @DisplayName("Save File")
-    public boolean saveFile(@Config SambaConfiguration configuration, InputStream payload, String fileName) {
+    public boolean saveFile(@Config SambaConfiguration configuration, InputStream content,
+                            String fileName,
+                            @Optional(defaultValue = "true") boolean fileOverwrite) {
         logger.info("Saving file {}", fileName);
         OutputStream out = null;
         SMBClient smbClient = null;
         DiskShare diskShare = null;
+        boolean fileCreate = false;
         try {
             smbClient = SmbjUtils.createClient(configuration);
             diskShare = SmbjUtils.connectWithShare(smbClient, configuration);
-            File fileToWrite = SmbjUtils.openFile(configuration, fileName, diskShare);
+            File fileToWrite = SmbjUtils.openFile(configuration, fileName, diskShare, fileOverwrite);
             out = fileToWrite.getOutputStream();
-            out.write(IOUtils.toByteArray(payload));
+            out.write(IOUtils.toByteArray(content));
             out.flush();
             out.close();
             SmbjUtils.closeFile(fileToWrite);
             SmbjUtils.closeConnection(smbClient, diskShare);
-            return true;
+            fileCreate = true;
         } catch (Exception e) {
             logger.error("Something went wrong while writing the file", e);
             try {
@@ -57,7 +61,7 @@ public class SaveFileOperation {
             }
         }
 
-        return false;
+        return fileCreate;
     }
 
 
