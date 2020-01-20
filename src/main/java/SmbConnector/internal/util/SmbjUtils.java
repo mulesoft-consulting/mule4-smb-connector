@@ -16,6 +16,7 @@ import com.hierynomus.smbj.share.File;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.core.api.util.StringUtils;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +82,10 @@ public class SmbjUtils {
             logger.info("file name {} exists, overwriting existing file ", fileName);
             diskShare.rm(dest);
         }
-        return diskShare.openFile(dest, accessMasks, fileAttributes, shareAccesses, SMB2CreateDisposition.FILE_OVERWRITE_IF, smb2CreateOptions);
+        if(fileOverwrite)
+            return diskShare.openFile(dest, accessMasks, fileAttributes, shareAccesses, SMB2CreateDisposition.FILE_OVERWRITE_IF, smb2CreateOptions);
+         else
+        return diskShare.openFile(dest, accessMasks, fileAttributes, shareAccesses, SMB2CreateDisposition.FILE_OPEN_IF, smb2CreateOptions);
     }
 
     public static File readFile(SambaConfiguration configuration, String fileName, DiskShare diskShare) {
