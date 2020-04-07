@@ -1,7 +1,7 @@
 # Samba- Extension
 
 Build connector
-`mvn clean install`
+`mvn clean install `
 
 Add this dependency to your application pom.xml
 
